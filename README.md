@@ -32,10 +32,45 @@ See `/diagrams` for full topology diagrams.
 
 ## Project Structure
 
-```text
 home-lab-monitoring-project/
-├── diagrams/   # Network and architecture diagrams
-├── docs/       # Planning and documentation
-├── lab/        # Lab setup and configuration
-├── backend/    # Future Python API/backend
-└── scripts/    # Helper scripts
+- diagrams/   # Network and architecture diagrams
+- docs/       # Planning and documentation
+- lab/        # Lab setup and configuration
+- backend/    # Future Python API/backend
+- scripts/    # Helper scripts
+
+---
+
+## Current Status
+
+### Phase 1 – Lab Setup
+
+- Architecture defined ✅
+- Repo structure complete ✅
+- Diagrams created ✅
+- Lab setup in progress 🔄
+
+---
+
+---
+
+## Roadmap
+
+See: `docs/project-roadmap.md`
+
+---
+
+---
+
+## Changelog
+
+See: `CHANGELOG.md`
+
+---
+
+---
+
+## Author
+
+Nathaniel Kelly  
+GitHub: https://github.com/natekelly-tech
