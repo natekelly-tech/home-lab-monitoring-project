@@ -1,4 +1,4 @@
-Phase 1: repo and diagrams
-Phase 2: lab setup
-Phase 3: backend/API
-Phase 4: mobile app
+- Phase 1: repo and diagrams
+- Phase 2: lab setup
+- Phase 3: backend/API
+- Phase 4: mobile app
