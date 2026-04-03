@@ -1,73 +1,65 @@
 # Enterprise-Style Home Lab Monitoring Project
 
 ## Overview
+This project is a hands-on cybersecurity and networking lab designed to simulate an enterprise environment.
 
-This project is a personal home lab designed to simulate a small enterprise network environment. The goal is to build a realistic setup that includes network segmentation, virtualized systems, and a lightweight monitoring solution with a mobile interface.
+The goal is to build a fully segmented home lab with monitoring capabilities, backend services, and a mobile interface.
 
-The project is being developed in phases, starting with a foundational lab and expanding into backend services and application-level monitoring.
+---
+
+## Objectives
+- Build a segmented home lab network using VLANs
+- Deploy and manage virtual machines on a dedicated lab server
+- Develop a Python-based monitoring system
+- Expose monitoring data through an API
+- Integrate a mobile application for real-time monitoring
 
 ---
 
 ## Architecture
+See `/diagrams` for full topology diagrams.
 
-The lab environment includes:
-
-* ISP → Router → Cisco Switch topology
-* Dedicated lab server hosting virtual machines
-* Segmented network design (management and lab networks)
-* Virtualized lab environment including:
-
-  * Web server
-  * Client system
-  * Monitoring backend
-
-A mobile device will be used to access monitoring data through a custom API over WiFi.
-
-See `/diagrams` for topology diagrams.
+Current design includes:
+- ISP → Router → Cisco Switch (SW1)
+- VLAN segmentation (Management + Lab)
+- Dedicated Lab Server (VM host)
+- Virtualized environment with multiple VMs
+- Mobile device integration via WiFi
 
 ---
 
-## Project Components
+## Project Structure
 
-### 1. Lab Environment
+home-lab-monitoring-project/
+├── diagrams/ # Network and architecture diagrams
+├── docs/ # Planning and documentation
+├── lab/ # Lab setup and configuration
+├── backend/ # Future Python API/backend
+├── scripts/ # Helper scripts
 
-* Cisco switch-based network
-* VLAN segmentation (planned/implemented)
-* Virtual machines running services and test systems
-
-### 2. Backend Monitoring
-
-* Python-based backend (Flask or FastAPI)
-* Performs basic checks (ping, service availability)
-* Exposes data through a simple API
-
-### 3. Mobile App (Planned)
-
-* Mobile interface to view system status
-* Connects to backend API
-* Displays device and service health
 
 ---
 
-## Goals
+## Current Status
 
-* Build a realistic and expandable home lab
-* Reinforce networking concepts (CCNA-level)
-* Learn backend development and API design
-* Gain exposure to mobile application development
-* Create a portfolio-ready project
+### Phase 1 – Lab Setup
+- Architecture defined ✅
+- Repo structure complete ✅
+- Diagrams created ✅
+- Lab setup in progress 🔄
 
 ---
 
-## Project Status
-
-Currently in early development:
-
-* Architecture design complete
-* Initial lab setup in progress
+## Roadmap
+See: `docs/project-roadmap.md`
 
 ---
 
 ## Changelog
+See: `CHANGELOG.md`
 
-See `CHANGELOG.md` for version history and updates.
+---
+
+## Author
+Nathaniel Kelly  
+GitHub: https://github.com/natekelly-tech
