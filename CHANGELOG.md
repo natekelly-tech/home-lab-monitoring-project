@@ -1,73 +1,124 @@
 # Changelog
 
-All notable changes to the Enterprise-Style Home Lab Monitoring Project will be documented in this file.
+All notable changes to this project will be documented in this file.
+
+This project follows a structured, versioned approach to track architecture, lab development, and software implementation.
 
 ---
 
-## v1.0 – Baseline Architecture Defined
+## Current Phase: Phase 1 – Lab Setup
 
-* Finalized core network topology:
+### Completed
+- Initial repository created
+- Repository structure established:
+  - `docs/`
+  - `diagrams/`
+  - `lab/`
+  - `backend/`
+  - `scripts/`
+- Added starter `README.md` files to all directories
+- Created `CHANGELOG.md`
+- Created `project-roadmap.md`
+- Created `lab-plan.md`
+- Added initial network diagrams:
+  - `Topology v1.0.drawio`
+  - `Topology v1.0.png`
+- Defined baseline architecture and system design
 
-  * ISP → Home Router / Gateway → Cisco Switch (SW1)
-* Established Layer 2 switching model with planned VLAN segmentation
-* Defined network segmentation strategy:
+### In Progress
+- Lab server build
+- VM setup and configuration
 
-  * VLAN 10 – Management network (Main PC / Command Station)
-  * VLAN 20 – Lab network (Lab Server and virtualized systems)
-* Introduced dedicated Lab Server (VM Host) to separate infrastructure from management systems
-* Defined internal virtualization layer using a virtual switch for VM-to-VM communication
-* Structured the Virtualized Lab Environment with clearly defined roles:
-
-  * Web Server VM (HTTP service)
-  * Client VM (user simulation)
-  * Monitoring Backend VM (API backend)
-* Implemented management communication path between Main PC and Lab Server (SSH / API)
-* Integrated mobile device (monitoring app) over WiFi (WLAN) to simulate real-world user access
-* Defined API-based monitoring flow:
-
-  * Mobile device → Router → Switch → Lab Server → Monitoring Backend VM
-* Improved diagram clarity, labeling, and separation of physical vs logical connections
-
-This version represents the baseline architecture that future implementation and development will be built on.
-
----
-
-## v0.3 – Mobile Integration and Full Architecture Flow
-
-* Added mobile device (monitoring app) connected via WiFi (WLAN)
-* Introduced API communication path from mobile device to lab backend (HTTPS)
-* Clarified end-to-end system flow: client → API → lab environment
-* Improved diagram layout for readability and separation of roles
-* Refined labeling for management traffic and API access paths
+### Planned
+- Python monitoring script
+- Backend API development
+- Mobile application integration
 
 ---
 
-## v0.2 – Network Structure and Virtualization Layer
+## [v1.0] – Baseline Architecture Defined
 
-* Introduced Cisco switch (SW1) as central network device
-* Defined network segmentation using VLAN concepts:
-
-  * VLAN 10 (Management)
-  * VLAN 20 (Lab Network)
-* Added dedicated lab server (VM host) to separate infrastructure from management system
-* Introduced virtual switch concept for internal VM networking
-* Grouped virtual machines into a structured "Virtualized Lab Environment"
-* Defined VM roles:
-
-  * Web Server VM (HTTP service)
-  * Client VM (user simulation)
-  * Monitoring Backend VM (API backend)
+### Added
+- Finalized core network topology:
+  - ISP → Home Router / Gateway → Cisco Switch (SW1)
+- Defined Layer 2 switching model
+- Designed VLAN segmentation strategy:
+  - VLAN 10 – Management network
+  - VLAN 20 – Lab network
+- Introduced dedicated Lab Server (VM Host)
+- Defined internal virtualization layer (virtual switch)
+- Structured virtualized lab environment:
+  - Web Server VM (HTTP service)
+  - Client VM (user simulation)
+  - Monitoring Backend VM (API backend)
+- Established management communication path (SSH / API)
+- Added mobile device integration over WLAN
+- Defined API-based monitoring flow:
+  - Mobile → Router → Switch → Lab Server → Backend VM
+- Created and uploaded architecture diagrams (v1.0)
+- Improved diagram clarity and labeling
 
 ---
 
-## v0.1 – Initial Topology Concept
+## [v0.3] – Mobile Integration and Full Architecture Flow
 
-* Created initial high-level network diagram
-* Defined core components:
+### Added
+- Mobile device (monitoring app) connected via WiFi
+- API communication path using HTTPS
+- End-to-end system flow:
+  - Client → API → Lab Environment
 
-  * ISP connection
-  * Home router / gateway
-  * Main PC (management system)
-  * Lab server concept
-* Established basic communication flow between systems
-* Outlined intent to simulate an enterprise-style home lab environment
+### Changed
+- Improved diagram layout and readability
+- Refined labeling for:
+  - Management traffic
+  - API access paths
+
+---
+
+## [v0.2] – Network Structure and Virtualization Layer
+
+### Added
+- Cisco switch (SW1) as central network device
+- VLAN segmentation design:
+  - VLAN 10 – Management
+  - VLAN 20 – Lab Network
+- Dedicated Lab Server (VM host)
+- Virtual switch for internal VM networking
+- Structured "Virtualized Lab Environment"
+
+### Defined VM Roles
+- Web Server VM
+- Client VM
+- Monitoring Backend VM
+
+---
+
+## [v0.1] – Initial Topology Concept
+
+### Added
+- Initial high-level network diagram
+- Core components defined:
+  - ISP connection
+  - Home router / gateway
+  - Main PC (management system)
+  - Lab server concept
+- Basic communication flow between systems
+- Defined project goal:
+  - Simulate an enterprise-style home lab environment
+
+---
+
+## Repository Setup (GitHub Initialization)
+
+### Added
+- Public GitHub repository created
+- Initial commits on `main` branch
+- `.gitignore` added
+- Root `README.md` created and expanded
+- Folder structure created via GitHub web interface
+- Markdown documentation initialized across project
+
+### Notes
+- Project is currently managed directly on `main` (no branching yet)
+- Workflow intentionally kept simple for early-stage development
