@@ -52,6 +52,10 @@ home-lab-monitoring-project/
 
 ---
 
+## Mobile Application
+
+See: `docs/mobile-app-overview.md`
+
 ---
 
 ## Roadmap
@@ -60,13 +64,10 @@ See: `docs/project-roadmap.md`
 
 ---
 
----
 
 ## Changelog
 
 See: `CHANGELOG.md`
-
----
 
 ---
 
