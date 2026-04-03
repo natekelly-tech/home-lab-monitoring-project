@@ -6,7 +6,7 @@ This project follows a structured, versioned approach to track architecture, lab
 
 ---
 
-## Current Phase: Phase 1 – Lab Setup
+## Current Phase: Phase 1 – Setup
 
 ### Completed
 - Initial repository created
