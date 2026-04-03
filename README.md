@@ -17,9 +17,11 @@ The goal is to build a fully segmented home lab with monitoring capabilities, ba
 ---
 
 ## Architecture
+
 See `/diagrams` for full topology diagrams.
 
-Current design includes:
+### Current Design Includes
+
 - ISP → Router → Cisco Switch (SW1)
 - VLAN segmentation (Management + Lab)
 - Dedicated Lab Server (VM host)
@@ -31,22 +33,22 @@ Current design includes:
 ## Project Structure
 
 home-lab-monitoring-project/
-├── diagrams/ # Network and architecture diagrams
-├── docs/ # Planning and documentation
-├── lab/ # Lab setup and configuration
-├── backend/ # Future Python API/backend
-├── scripts/ # Helper scripts
-
+├── diagrams/   # Network and architecture diagrams
+├── docs/       # Planning and documentation
+├── lab/        # Lab setup and configuration
+├── backend/    # Future Python API/backend
+└── scripts/    # Helper scripts
 
 ---
 
-## Current Status
-
 ### Phase 1 – Lab Setup
-- Architecture defined ✅
-- Repo structure complete ✅
-- Diagrams created ✅
-- Lab setup in progress 🔄
+
+| Task | Status |
+|------|--------|
+| Architecture defined | ✅ |
+| Repo structure complete | ✅ |
+| Diagrams created | ✅ |
+| Lab setup | 🔄 |
 
 ---
 
