@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homelab Monitor</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1a1a2e; color: #eee; padding: 2rem; }
+        h1 { color: #e94560; }
+        .grid { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.5rem; }
+        .card { background: #16213e; border-radius: 8px; padding: 1.2rem 1.8rem; min-width: 200px; }
+        .card h2 { margin: 0 0 0.5rem; font-size: 1rem; color: #a8a8b3; }
+        .status { font-size: 1.4rem; font-weight: bold; }
+        .up { color: #00d25b; }
+        .down { color: #e94560; }
+    </style>
+</head>
+<body>
+    <h1>🖥️ Homelab Monitor</h1>
+    <p>Live status of all monitored services</p>
+    <div class="grid">
+        {% for service in services %}
+        <div class="card">
+            <h2>{{ service.name }}</h2>
+            <div class="status {{ service.status }}">
+                {% if service.status == "up" %}✅ UP{% else %}❌ DOWN{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
