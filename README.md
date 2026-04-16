@@ -45,10 +45,10 @@ home-lab-monitoring-project/
 
 ### Phase 1 – Lab Setup
 
-- Architecture defined ✅
-- Repo structure complete ✅
-- Diagrams created ✅
-- Lab setup in progress 🔄
+- Architecture defined 
+- Repo structure complete 
+- Diagrams created 
+- Lab setup in progress 
 
 ---
 
