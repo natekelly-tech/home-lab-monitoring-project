@@ -1,0 +1,71 @@
+# docker-compose.yml — LabWatch API (local development)
+#
+# docker compose up --build     → build image and start container
+# docker compose up -d          → start in background (detached)
+# docker compose logs -f        → tail logs live
+# docker compose down           → stop and remove container
+# docker compose down --volumes → also remove any named volumes
+#
+# Why no reverse proxy service here?
+# Your production traffic already goes through Cloudflare Tunnel, which
+# handles TLS termination and acts as your edge proxy. Adding nginx or
+# Traefik here would duplicate that role for no benefit on this deployment.
+# In a real multi-service Kubernetes cluster, an Ingress controller takes
+# that role — we'll add it in Phase B rather than bolt it on here where it
+# adds complexity without value.
+
+services:
+  api:
+    # Build from the Dockerfile in the current directory
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Tag the locally-built image. Replace 'auxcon' with your DockerHub username.
+    # :dev tag distinguishes local dev builds from pushed release versions.
+    image: auxcon/labwatch-api:dev
+
+    container_name: labwatch-api
+
+    # host networking: the container shares the VM's network stack entirely.
+    #
+    # Why required here: your ping checks target 192.168.2.100 and .123 —
+    # devices on your physical home network. Inside a Docker bridge network
+    # (the default), these addresses don't exist. The container only sees its
+    # own virtual subnet (typically 172.17.0.0/16).
+    #
+    # With network_mode: host, the container sees the same interfaces as the
+    # Ubuntu VM. `ping 192.168.2.100` works exactly as it does on the host.
+    #
+    # Tradeoff: you lose container network isolation. For a monitoring app on
+    # a single-tenant home lab, that's an acceptable and intentional choice.
+    # In Kubernetes (Phase B), we handle this differently with hostNetwork: true
+    # on the Pod spec, or by moving ping checks to a separate DaemonSet.
+    #
+    # Note: when network_mode is host, the `ports` mapping is ignored on Linux.
+    # The app binds directly to port 8080 on the VM — no port mapping needed.
+    network_mode: host
+
+    environment:
+      # Tells Flask it's in production. Disables the Werkzeug debugger.
+      - FLASK_ENV=production
+      # Controls gunicorn worker count. 3 = (2 × 1 vCPU) + 1.
+      - GUNICORN_WORKERS=3
+      # Controls log verbosity. INFO in production, DEBUG when troubleshooting.
+      - LOG_LEVEL=INFO
+
+    # Always restart the container if it exits, unless you explicitly stop it.
+    # This replaces the systemd Restart=always behaviour.
+    restart: unless-stopped
+
+    # Log configuration for the container runtime.
+    # json-file: Docker's default log driver — stores logs as JSON on disk.
+    # max-size + max-file: rotate logs so you don't fill the disk.
+    # These logs are what `docker logs labwatch-api` reads.
+    # A log aggregator (Loki, Promtail, CloudWatch agent) would be configured
+    # to read from this same location: /var/lib/docker/containers/<id>/*.log
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
