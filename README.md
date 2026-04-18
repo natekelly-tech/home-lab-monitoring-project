@@ -1,42 +1,102 @@
-# Home Lab Monitoring Project
+# LabWatch — Home Lab Monitoring System
 
-A full-stack enterprise-style home lab monitoring system built on a physical network with virtual machines, a Python REST API, and a native Android mobile app.
+**Auxcon Technologies** | [auxcon.dev](https://auxcon.dev) | [api.auxcon.dev/status](https://api.auxcon.dev/status)
+
+A full-stack, enterprise-style home lab monitoring system built from physical network infrastructure up. Monitors network devices and internet connectivity via HTTP checks and ICMP ping, exposes live data through a REST API, and displays status on a native Android app and web dashboard.
 
 ---
 
-## Overview
+## Live Deployment
 
-This project simulates an enterprise monitoring environment from the ground up — physical network infrastructure, Linux server deployment, a custom REST API, and a mobile app that displays live service status in real time.
+| Component | URL |
+|-----------|-----|
+| API Status | https://api.auxcon.dev/status |
+| API Health | https://api.auxcon.dev/ |
+| Web Dashboard | https://api.auxcon.dev/dashboard |
+| Docker Image | https://hub.docker.com/r/auxcon/labwatch-api |
 
-Built as part of a university BETA project. All components are self-hosted and self-managed.
+---
+
+## Quick Start (Docker)
+
+Pull and run the published image in one command:
+
+```bash
+docker pull auxcon/labwatch-api:0.1.0
+
+docker run -d \
+  --name labwatch-api \
+  --network=host \
+  --cap-add=NET_RAW \
+  --restart=unless-stopped \
+  auxcon/labwatch-api:0.1.0
+```
+
+The API will be available at `http://localhost:8080`.
+
+> `--network=host` is required for ICMP ping checks to reach LAN devices.
+> `--cap-add=NET_RAW` grants the minimum Linux capability needed for raw socket access.
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Health check — returns version info |
+| GET | `/status` | All services — JSON summary with up/down counts |
+| GET | `/status/<name>` | Single service by name |
+| GET | `/dashboard` | Web dashboard (HTML) |
+
+### Example response — `/status`
+
+```json
+{
+  "total": 4,
+  "up": 4,
+  "down": 0,
+  "results": [
+    {
+      "name": "Google",
+      "type": "http",
+      "target": "https://www.google.com",
+      "status": "up",
+      "response_time_ms": 310,
+      "status_code": 200
+    },
+    {
+      "name": "Lab PC",
+      "type": "ping",
+      "target": "192.168.2.123",
+      "status": "up",
+      "response_time_ms": null,
+      "status_code": null
+    }
+  ]
+}
+```
 
 ---
 
 ## Architecture
 
 ```
-Android App (LabWatch)
+Internet (Deutsche Telekom)
         |
-   auxcon.dev (Cloudflare Tunnel)
+  Speedport Smart 4 — home router (192.168.2.1)
         |
-Ubuntu Server VM (192.168.2.137)
-        |
-   Flask REST API (Port 8080)
-        |
-   Monitoring Engine
-   (HTTP checks + Ping)
-        |
- [Google] [Cloudflare DNS] [Router] [Main PC] [Lab PC] [Ubuntu Server]
+  Cisco Catalyst 1200-8T-D — managed switch (192.168.2.2)
+  ├── Port 2 → Main PC / Dev Machine (192.168.2.100)
+  └── Port 3 → Lab PC / VirtualBox Host (192.168.2.123)
+                    └── Ubuntu Server VM (192.168.2.137)
+                              └── LabWatch API — Docker container :8080
+                                        |
+                              Cloudflare Tunnel
+                                        |
+                              api.auxcon.dev (public)
+                                        |
+                              LabWatch Android App
 ```
-
-### Network Infrastructure
-
-| Device | IP | Role |
-|--------|-----|------|
-| Speedport Smart 4 | 192.168.2.1 | Home router (Deutsche Telekom) |
-| Main PC (Windows) | 192.168.2.100 | Development machine |
-| Lab PC (Windows) | 192.168.2.123 | VM host machine |
-| Ubuntu Server VM | 192.168.2.137 | Production server |
 
 ---
 
@@ -46,84 +106,93 @@ Ubuntu Server VM (192.168.2.137)
 home-lab-monitoring-project/
 ├── backend/
 │   ├── app/
+│   │   ├── main.py           # Flask routes
+│   │   ├── checker.py        # HTTP and ping check logic
 │   │   ├── __init__.py
-│   │   ├── main.py          # Flask app and routes
-│   │   ├── checker.py       # HTTP and ping check logic
 │   │   └── templates/
 │   │       └── dashboard.html
-│   ├── config.py            # Monitored services config
-│   └── requirements.txt
-├── diagrams/                # Network topology diagrams
-├── docs/                    # Documentation and dev logs
-├── lab/                     # Lab setup notes
-├── scripts/                 # Helper scripts
+│   ├── config.py             # Monitored services list
+│   ├── requirements.txt      # Pinned Python dependencies
+│   ├── Dockerfile            # Multi-stage production build
+│   ├── docker-compose.yml    # Local development compose
+│   ├── gunicorn.conf.py      # Production WSGI configuration
+│   └── .dockerignore
+├── diagrams/                 # Network topology diagrams
+├── docs/
+│   └── devlogs/              # Session-by-session engineering log
+├── lab/
+├── scripts/
 ├── CHANGELOG.md
 └── README.md
 ```
 
 ---
 
-## Backend — Flask REST API
+## Tech Stack
 
-**Runtime:** Python 3 with Flask  
-**Host:** Ubuntu Server VM at `192.168.2.137`  
-**Process manager:** systemd (auto-starts on boot)
-
-### Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Health check |
-| GET | `/status` | All services JSON |
-| GET | `/status/<name>` | Single service status |
-| GET | `/dashboard` | Web dashboard |
-
-### Services Monitored
-
-| Service | Type | Target |
-|---------|------|--------|
-| Google | HTTP | https://www.google.com |
-| Cloudflare DNS | HTTP | https://1.1.1.1 |
-| Speedport Router | HTTP | http://192.168.2.1 |
-| Main PC | Ping | 192.168.2.100 |
-| Lab PC | Ping | 192.168.2.123 |
-| Ubuntu Server | Ping | 127.0.0.1 |
+| Layer | Technology |
+|-------|-----------|
+| Language | Python 3.12 |
+| Web framework | Flask 3.1.0 |
+| WSGI server | Gunicorn 23.0.0 |
+| Containerisation | Docker (multi-stage, python:3.12-slim) |
+| Orchestration | Docker Compose (Kubernetes planned) |
+| External access | Cloudflare Tunnel |
+| Mobile app | React Native / Expo (Android) |
+| Network | Cisco Catalyst 1200, Deutsche Telekom ISP |
+| OS | Ubuntu Server 24.04 LTS (VM) |
 
 ---
 
-## Mobile App — LabWatch
+## Mobile App
 
-A native Android app built with React Native and Expo that displays live service status from the Flask API.
+**LabWatch** is a native Android app that consumes this API and displays live service status.
 
-**Repository:** [github.com/natekelly-tech/homelab-app](https://github.com/natekelly-tech/homelab-app)  
-**Package ID:** `com.auxcon.labwatch`  
-**Built with:** React Native, Expo, EAS Build
+- Package: `com.auxcon.labwatch`
+- Repo: [github.com/natekelly-tech/homelab-app](https://github.com/natekelly-tech/homelab-app)
+- Connects to `https://api.auxcon.dev`
+- Auto-refreshes every 30 seconds
 
 ---
 
-## Roadmap
+## Development Setup
+
+### Run locally without Docker
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python app/main.py
+```
+
+### Run with Docker Compose
+
+```bash
+cd backend
+docker compose up --build
+```
+
+---
+
+## Project Status
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| Phase 1 | Lab Setup and Network Architecture | Complete |
+| Phase 1 | Lab Setup & Network Architecture | Complete |
 | Phase 2 | Monitoring System (HTTP + Ping) | Complete |
 | Phase 3 | Backend REST API (Flask) | Complete |
-| Phase 4 | Mobile App Integration | Complete |
-| Phase 5 | External Access via Cloudflare Tunnel | In Progress |
-| Future | Docker, Kubernetes, Authentication, Alerts | Planned |
-
----
-
-## Documentation
-
-- [CHANGELOG.md](CHANGELOG.md) — version history
-- [docs/devlogs/](docs/devlogs/) — session dev logs
-- [diagrams/](diagrams/) — network topology diagrams
+| Phase 4 | Mobile App Integration (Android) | Complete |
+| Phase 5 | External Access via Cloudflare Tunnel | Complete |
+| Phase 6 | Containerisation (Docker + DockerHub) | Complete |
+| Phase 7 | Kubernetes Orchestration | Planned |
+| Future | VLANs, Auth, Alerting, CI/CD | Planned |
 
 ---
 
 ## Author
 
-**Nathaniel Kelly**  
-Auxcon Technologies  
-GitHub: [github.com/natekelly-tech](https://github.com/natekelly-tech)
+Nathaniel Kelly
+GitHub: [natekelly-tech](https://github.com/natekelly-tech)
+Company: Auxcon Technologies — *"Auxiliary Connection"*
