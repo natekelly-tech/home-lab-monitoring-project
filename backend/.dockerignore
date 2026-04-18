@@ -1,64 +1,41 @@
-# .dockerignore — LabWatch API
-#
-# .dockerignore works like .gitignore but for Docker builds.
-# When you run `docker build .`, Docker sends your entire build context
-# (the directory you're in) to the Docker daemon. Without this file,
-# that includes your venv (hundreds of MB of packages), .git history,
-# dev logs, and anything else in the directory.
-#
-# This file tells Docker: "don't include these paths in the build context."
-# Result: faster builds, smaller context, and no accidental secret leaks.
-
-# Python virtual environment — packages are re-installed inside the image
-# from requirements.txt. The local venv is never needed in the build.
+# Python
 venv/
 .venv/
 env/
-
-# Python bytecode — compiled automatically at runtime, not needed in image
 __pycache__/
 *.py[cod]
-*$py.class
 *.pyc
 *.pyo
-*.pyd
 
-# Git history — never needed inside a container
+# Git
 .git/
 .gitignore
 
-# Development and editor files
+# Dev tooling
 .env
 .env.*
-*.env
 .vscode/
 .idea/
 *.swp
-*.swo
 .DS_Store
 
-# Test files and coverage reports
+# Tests
 tests/
 test_*
 *_test.py
 .pytest_cache/
-htmlcov/
 .coverage
-coverage.xml
 
 # Build artefacts
 dist/
 build/
 *.egg-info/
 
-# Local dev logs
-*.log
-logs/
-
-# Documentation (not needed at runtime)
+# Docs and logs
 docs/
 *.md
 diagrams/
+*.log
+logs/
 
-# The .dockerignore file itself
 .dockerignore

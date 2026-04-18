@@ -1,34 +1,7 @@
-# requirements.txt — LabWatch API
-#
-# All versions are pinned to exact releases.
-#
-# Why pin? Unpinned dependencies mean "give me whatever is newest today."
-# If Flask 4.0 ships with a breaking API change next Tuesday, your image
-# build silently breaks. Pinned versions mean every build — on your VM,
-# your instructor's machine, a CI pipeline in a year — produces the same
-# result. This is called a reproducible build. It is non-negotiable in
-# any production system.
-#
-# To update a dependency intentionally:
-#   1. Change the version number here
-#   2. Rebuild the image
-#   3. Test
-#   4. Commit the change with a note explaining why you updated
+# Versions are pinned so every build — now, in CI, on a colleague's machine —
+# produces identical results regardless of what has been released upstream.
 
-# Web framework
 Flask==3.1.0
-
-# HTTP client (used in checker.py for HTTP service checks)
 requests==2.32.3
-
-# Production WSGI server — replaces Flask's built-in dev server.
-# Flask's dev server is single-threaded and exposes a live debugger.
-# Gunicorn is what every production Python deployment uses.
 gunicorn==23.0.0
-
-# Structured JSON log formatting.
-# Python's default log format is a plain string — unstructured text
-# that is hard to query in a log aggregator (Loki, CloudWatch, Datadog).
-# python-json-logger makes each log line a JSON object, which log
-# aggregators can index and filter by field (level, timestamp, message).
 python-json-logger==2.0.7
