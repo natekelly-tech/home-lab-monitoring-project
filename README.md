@@ -195,4 +195,4 @@ docker compose up --build
 
 Nathaniel Kelly
 GitHub: [natekelly-tech](https://github.com/natekelly-tech)
-Company: Auxcon Technologies — *"Auxiliary Connection"*
+Company: AUXCON Technologies  *"Auxiliary Connection"*
