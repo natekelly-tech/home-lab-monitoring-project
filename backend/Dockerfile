@@ -51,6 +51,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
         "import urllib.request; urllib.request.urlopen('http://localhost:8080/')" \
         || exit 1
 
-# Exec form (JSON array) used so Docker sends SIGTERM directly to gunicorn
-# rather than to a shell wrapper — required for graceful shutdown.
 CMD ["gunicorn", "--config", "gunicorn.conf.py", "app.main:app"]
