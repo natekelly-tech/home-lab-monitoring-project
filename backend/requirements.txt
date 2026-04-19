@@ -1,7 +1,4 @@
-# Versions are pinned so every build — now, in CI, on a colleague's machine —
-# produces identical results regardless of what has been released upstream.
-
 Flask==3.1.0
-requests==2.32.3
+requests==2.33.0
 gunicorn==23.0.0
 python-json-logger==2.0.7

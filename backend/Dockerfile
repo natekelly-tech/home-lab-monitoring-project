@@ -8,8 +8,6 @@ FROM python:3.12-slim AS builder
 
 WORKDIR /build
 
-# Copy requirements before app code so Docker's layer cache skips
-# re-running pip install on rebuilds where only app code changed.
 COPY requirements.txt .
 
 RUN python -m venv /opt/venv \
@@ -18,22 +16,18 @@ RUN python -m venv /opt/venv \
 
 
 # ── Stage 2: runtime ─────────────────────────────────────────────────────────
-# python:3.12-slim chosen over alpine (musl libc breaks some Python wheels)
-# and distroless (too restrictive for current debugging workflow).
 FROM python:3.12-slim AS runtime
 
-# Non-root user: limits blast radius if a vulnerability achieves code execution.
 RUN groupadd --system --gid 1001 appgroup \
     && useradd --system --uid 1001 --gid appgroup --no-create-home appuser
 
 WORKDIR /app
 
-# iputils-ping: required for ICMP checks. libcap2-bin + setcap grants
-# cap_net_raw to the ping binary only — minimum necessary privilege,
-# not --privileged or a broad capability grant.
 RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
     && apt-get install -y --no-install-recommends iputils-ping libcap2-bin \
     && setcap cap_net_raw+ep /usr/bin/ping \
+    && pip install --upgrade pip --quiet \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /opt/venv /opt/venv
