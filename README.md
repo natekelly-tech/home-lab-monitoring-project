@@ -67,7 +67,7 @@ The API will be available at `http://localhost:8080`.
     {
       "name": "Lab PC",
       "type": "ping",
-      "target": "192.168.2.123",
+      "target": "[LAN-HOST]",
       "status": "up",
       "response_time_ms": null,
       "status_code": null
@@ -81,14 +81,15 @@ The API will be available at `http://localhost:8080`.
 ## Architecture
 
 ```
+Architecture
 Internet (Deutsche Telekom)
         |
-  Speedport Smart 4 — home router (192.168.2.1)
+  [HOME-ROUTER] — Speedport Smart 4
         |
-  Cisco Catalyst 1200-8T-D — managed switch (192.168.2.2)
-  ├── Port 2 → Main PC / Dev Machine (192.168.2.100)
-  └── Port 3 → Lab PC / VirtualBox Host (192.168.2.123)
-                    └── Ubuntu Server VM (192.168.2.137)
+  [CORE-SWITCH] — Cisco Catalyst 1200-8T-D
+  ├── [DEV-MACHINE] — Windows / primary development
+  └── [LAB-PC] — Windows / VirtualBox host
+                    └── [PROD-SERVER] — Ubuntu Server VM
                               └── LabWatch API — Docker container :8080
                                         |
                               Cloudflare Tunnel
