@@ -22,14 +22,14 @@ A full-stack, enterprise-style home lab monitoring system built from physical ne
 Pull and run the published image in one command:
 
 ```bash
-docker pull auxcon/labwatch-api:0.1.0
+docker pull auxcon/labwatch-api:0.2.0
 
 docker run -d \
   --name labwatch-api \
   --network=host \
   --cap-add=NET_RAW \
   --restart=unless-stopped \
-  auxcon/labwatch-api:0.1.0
+  auxcon/labwatch-api:0.2.0
 ```
 
 The API will be available at `http://localhost:8080`.
@@ -137,7 +137,8 @@ home-lab-monitoring-project/
 | Web framework | Flask 3.1.0 |
 | WSGI server | Gunicorn 23.0.0 |
 | Containerisation | Docker (multi-stage, python:3.12-slim) |
-| Orchestration | Docker Compose (Kubernetes planned) |
+| Orchestration | Docker Compose / Kubernetes (Phase 7 planned) |
+| CI/CD         | GitHub Actions — auto-build and push to DockerHub on push to main |
 | External access | Cloudflare Tunnel |
 | Mobile app | React Native / Expo (Android) |
 | Network | Cisco Catalyst 1200, Deutsche Telekom ISP |
@@ -187,8 +188,9 @@ docker compose up --build
 | Phase 4 | Mobile App Integration (Android) | Complete |
 | Phase 5 | External Access via Cloudflare Tunnel | Complete |
 | Phase 6 | Containerisation (Docker + DockerHub) | Complete |
-| Phase 7 | Kubernetes Orchestration | Planned |
-| Future | VLANs, Auth, Alerting, CI/CD | Planned |
+| Phase 7 | Kubernetes Orchestration               | Planned  |
+| CI/CD   | GitHub Actions Docker workflow         | Complete |
+| Future  | VLANs, Auth, Alerting                  | Planned  |
 
 ---
 
