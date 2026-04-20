@@ -1,201 +1,143 @@
-# LabWatch — Home Lab Monitoring System
+# LabWatch — Auxcon Technologies
 
-**Auxcon Technologies** | [auxcon.dev](https://auxcon.dev) | [api.auxcon.dev/status](https://api.auxcon.dev/status)
-
-A full-stack, enterprise-style home lab monitoring system built from physical network infrastructure up. Monitors network devices and internet connectivity via HTTP checks and ICMP ping, exposes live data through a REST API, and displays status on a native Android app and web dashboard.
+A full-stack home lab monitoring system that checks the status of network services and infrastructure via HTTP checks. Exposes data through a REST API, a web dashboard, and an Android mobile app.
 
 ---
 
 ## Live Deployment
 
-| Component | URL |
-|-----------|-----|
-| API Status | https://api.auxcon.dev/status |
-| API Health | https://api.auxcon.dev/ |
+| Resource | URL |
+|---|---|
+| Public API | https://api.auxcon.dev/status |
 | Web Dashboard | https://api.auxcon.dev/dashboard |
-| Docker Image | https://hub.docker.com/r/auxcon/labwatch-api |
+| DockerHub | hub.docker.com/r/auxcon/labwatch-api |
 
----
-
-## Quick Start (Docker)
-
-Pull and run the published image in one command:
-
-```bash
-docker pull auxcon/labwatch-api:0.2.0
-
-docker run -d \
-  --name labwatch-api \
-  --network=host \
-  --cap-add=NET_RAW \
-  --restart=unless-stopped \
-  auxcon/labwatch-api:0.2.0
-```
-
-The API will be available at `http://localhost:8080`.
-
-> `--network=host` is required for ICMP ping checks to reach LAN devices.
-> `--cap-add=NET_RAW` grants the minimum Linux capability needed for raw socket access.
-
----
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Health check — returns version info |
-| GET | `/status` | All services — JSON summary with up/down counts |
-| GET | `/status/<name>` | Single service by name |
-| GET | `/dashboard` | Web dashboard (HTML) |
-
-### Example response — `/status`
-
-```json
-{
-  "total": 4,
-  "up": 4,
-  "down": 0,
-  "results": [
-    {
-      "name": "Google",
-      "type": "http",
-      "target": "https://www.google.com",
-      "status": "up",
-      "response_time_ms": 310,
-      "status_code": 200
-    },
-    {
-      "name": "Lab PC",
-      "type": "ping",
-      "target": "[LAN-HOST]",
-      "status": "up",
-      "response_time_ms": null,
-      "status_code": null
-    }
-  ]
-}
-```
+The API runs 24/7 on AWS EC2 (us-west-1) behind a Cloudflare Tunnel. No home network infrastructure is exposed.
 
 ---
 
 ## Architecture
 
 ```
-Architecture
-Internet (Deutsche Telekom)
-        |
-  [HOME-ROUTER] — Speedport Smart 4
-        |
-  [CORE-SWITCH] — Cisco Catalyst 1200-8T-D
-  ├── [DEV-MACHINE] — Windows / primary development
-  └── [LAB-PC] — Windows / VirtualBox host
-                    └── [PROD-SERVER] — Ubuntu Server VM
-                              └── LabWatch API — Docker container :8080
-                                        |
-                              Cloudflare Tunnel
-                                        |
-                              api.auxcon.dev (public)
-                                        |
-                              LabWatch Android App
+Internet → Cloudflare (TLS) → Cloudflare Tunnel → EC2 (AWS us-west-1)
+                                                        └── Docker (Gunicorn + Flask)
 ```
+
+The application runs as a non-root Docker container managed by Docker Compose. Cloudflare Tunnel handles all inbound TLS termination — no ports are directly exposed to the internet except 22 (SSH), 80, and 443, enforced by UFW and AWS Security Groups.
 
 ---
 
-## Project Structure
+## Repository Structure
 
 ```
 home-lab-monitoring-project/
-├── backend/
-│   ├── app/
-│   │   ├── main.py           # Flask routes
-│   │   ├── checker.py        # HTTP and ping check logic
-│   │   ├── __init__.py
-│   │   └── templates/
-│   │       └── dashboard.html
-│   ├── config.py             # Monitored services list
-│   ├── requirements.txt      # Pinned Python dependencies
-│   ├── Dockerfile            # Multi-stage production build
-│   ├── docker-compose.yml    # Local development compose
-│   ├── gunicorn.conf.py      # Production WSGI configuration
-│   └── .dockerignore
-├── diagrams/                 # Network topology diagrams
-├── docs/
-│   └── devlogs/              # Session-by-session engineering log
-├── lab/
-├── scripts/
-├── CHANGELOG.md
-└── README.md
+backend/
+  app/
+    __init__.py
+    main.py          # Flask routes + JSON logging
+    checker.py       # HTTP check logic
+    templates/
+      dashboard.html # Web dashboard (military aesthetic)
+  config.py          # Monitored services list
+  requirements.txt   # Pinned dependencies
+  Dockerfile         # Multi-stage, python:3.12-slim, non-root
+  docker-compose.yml
+  gunicorn.conf.py
+.github/
+  workflows/
+    docker-build.yml # CI/CD — builds on push to main, pushes to DockerHub
+diagrams/
+docs/devlogs/
+CHANGELOG.md
+README.md
+SECURITY.md
 ```
 
 ---
 
-## Tech Stack
+## Services Monitored
 
-| Layer | Technology |
-|-------|-----------|
-| Language | Python 3.12 |
-| Web framework | Flask 3.1.0 |
-| WSGI server | Gunicorn 23.0.0 |
-| Containerisation | Docker (multi-stage, python:3.12-slim) |
-| Orchestration | Docker Compose / Kubernetes (Phase 7 planned) |
-| CI/CD         | GitHub Actions — auto-build and push to DockerHub on push to main |
-| External access | Cloudflare Tunnel |
-| Mobile app | React Native / Expo (Android) |
-| Network | Cisco Catalyst 1200, Deutsche Telekom ISP |
-| OS | Ubuntu Server 24.04 LTS (VM) |
+| Name | Type | Target |
+|---|---|---|
+| Google | HTTP | https://www.google.com |
+| Cloudflare DNS | HTTP | https://1.1.1.1 |
+| LabWatch API | HTTP | http://localhost:8080 |
+| auxcon.dev | HTTP | https://api.auxcon.dev |
+
+---
+
+## API Endpoints
+
+| Endpoint | Description |
+|---|---|
+| GET / | Health check — returns version info |
+| GET /status | All services JSON |
+| GET /status/\<name\> | Single service by name |
+| GET /dashboard | Web dashboard (HTML) |
+
+---
+
+## Infrastructure
+
+| Component | Details |
+|---|---|
+| Cloud provider | AWS EC2 us-west-1 |
+| OS | Ubuntu 24.04 LTS |
+| Container runtime | Docker 29.4.1 |
+| WSGI server | Gunicorn 23.0.0 — 3 workers |
+| Base image | python:3.12-slim |
+| Container user | appuser uid 1001 (non-root) |
+| Tunnel | cloudflared v2026.3.0 (systemd service) |
+| Firewall | UFW + AWS Security Groups |
+| Intrusion prevention | fail2ban (SSH, 5 retries / 1h ban) |
+| Auto-updates | unattended-upgrades (enabled) |
+
+---
+
+## CI/CD
+
+Push to `main` triggers GitHub Actions which builds a multi-platform image (`linux/amd64`, `linux/arm64`) and pushes to DockerHub as `auxcon/labwatch-api:0.3.0` and `auxcon/labwatch-api:latest`.
+
+EC2 deployment uses the `latest` tag. To deploy a new release on EC2:
+
+```bash
+cd ~/lab
+docker compose pull
+docker compose up -d
+```
 
 ---
 
 ## Mobile App
 
-**LabWatch** is a native Android app that consumes this API and displays live service status.
-
-- Package: `com.auxcon.labwatch`
-- Repo: [github.com/natekelly-tech/homelab-app](https://github.com/natekelly-tech/homelab-app)
-- Connects to `https://api.auxcon.dev`
-- Auto-refreshes every 30 seconds
+React Native / Expo app connecting to `https://api.auxcon.dev`. APK built and functional. Repo: github.com/natekelly-tech/homelab-app
 
 ---
 
-## Development Setup
+## Key Design Decisions
 
-### Run locally without Docker
+**python:3.12-slim over alpine** — Alpine musl libc breaks C-extension Python packages silently. Slim is minimal Debian with predictable behaviour.
 
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-python app/main.py
-```
+**Non-root container user** — If a vulnerability achieves code execution, uid 1001 limits blast radius versus running as root.
 
-### Run with Docker Compose
+**Cloudflare Tunnel over direct exposure** — Handles TLS termination at the edge. No open inbound ports required beyond what AWS Security Groups permit.
 
-```bash
-cd backend
-docker compose up --build
-```
+**EC2 over home lab for production** — 9-hour time zone difference between developer (Germany) and instructor/peers (US West Coast) made home lab uptime incompatible with a production deployment. EC2 runs 24/7 independent of local infrastructure.
+
+**Pinned dependency versions** — Reproducible builds. Unpinned dependencies produce images that differ between build dates.
 
 ---
 
-## Project Status
+## Project Phase Status
 
 | Phase | Description | Status |
-|-------|-------------|--------|
-| Phase 1 | Lab Setup & Network Architecture | Complete |
-| Phase 2 | Monitoring System (HTTP + Ping) | Complete |
-| Phase 3 | Backend REST API (Flask) | Complete |
-| Phase 4 | Mobile App Integration (Android) | Complete |
-| Phase 5 | External Access via Cloudflare Tunnel | Complete |
-| Phase 6 | Containerisation (Docker + DockerHub) | Complete |
-| Phase 7 | Kubernetes Orchestration               | Planned  |
-| CI/CD   | GitHub Actions Docker workflow         | Complete |
-| Future  | VLANs, Auth, Alerting                  | Planned  |
-
----
-
-## Author
-
-Nathaniel Kelly
-GitHub: [natekelly-tech](https://github.com/natekelly-tech)
-Company: AUXCON Technologies  *"Auxiliary Connection"*
+|---|---|---|
+| 1 | Lab Setup & Network Architecture | Complete |
+| 2 | Monitoring System (HTTP + Ping) | Complete |
+| 3 | Backend REST API (Flask) | Complete |
+| 4 | Mobile App Integration | Complete |
+| 5 | External Access via Cloudflare Tunnel | Complete |
+| 6 | Containerisation (Docker + DockerHub) | Complete |
+| 6.5 | Cloud Migration to AWS EC2 | Complete |
+| 6.6 | Server Hardening (UFW, fail2ban, unattended-upgrades) | Complete |
+| 7 | Kubernetes Orchestration | Next |
