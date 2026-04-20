@@ -29,5 +29,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            auxcon/labwatch-api:0.2.0
+            auxcon/labwatch-api:0.3.0
             auxcon/labwatch-api:latest
