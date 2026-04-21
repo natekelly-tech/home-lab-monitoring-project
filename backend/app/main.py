@@ -37,6 +37,8 @@ from config import SERVICES
 from app.checker import check_all_services, check_service
 
 app = Flask(__name__)
+# TODO: Replace in-memory storage with Redis backend in Kubernetes phase
+# Current limitation: limit is per-worker (3 workers = 180rpm effective limit)
 limiter = Limiter(
     get_remote_address,
     app=app,
