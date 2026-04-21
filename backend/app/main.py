@@ -2,8 +2,11 @@ import logging
 import os
 import sys
 
+
 from flask import Flask, jsonify, render_template
 from pythonjsonlogger import jsonlogger
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 
 def setup_logging():
@@ -34,7 +37,13 @@ from config import SERVICES
 from app.checker import check_all_services, check_service
 
 app = Flask(__name__)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["60 per minute"]
+)
 log.info("LabWatch API initialised", extra={"service_count": len(SERVICES)})
+
 
 
 @app.route("/")
