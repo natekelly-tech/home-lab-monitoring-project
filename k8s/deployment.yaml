@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: labwatch-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: labwatch-api
+  template:
+    metadata:
+      labels:
+        app: labwatch-api
+    spec:
+      containers:
+        - name: labwatch-api
+          image: auxcon/labwatch-api:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: labwatch-config
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
