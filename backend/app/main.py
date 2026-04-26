@@ -50,7 +50,7 @@ log.info("LabWatch API initialised", extra={"service_count": len(SERVICES)})
 
 @app.route("/")
 def index():
-    return jsonify({"message": "Homelab Monitor is running", "api_version": "1.0"})
+    return jsonify({"message": "Homelab Monitor is running", "api_version": "1.0"}) 
 
 
 @app.route("/dashboard")
