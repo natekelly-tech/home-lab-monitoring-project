@@ -37,8 +37,8 @@ from config import SERVICES
 from app.checker import check_all_services, check_service
 
 app = Flask(__name__)
-# TODO: Replace in-memory storage with Redis backend in Kubernetes phase
-# Current limitation: limit is per-worker (3 workers = 180rpm effective limit)
+# TODO: Replace in-memory storage with Redis shared backend (Phase 8).
+# Current limitation: rate limit is per-worker (2 workers under k3s = 120rpm effective).
 limiter = Limiter(
     get_remote_address,
     app=app,
@@ -50,7 +50,7 @@ log.info("LabWatch API initialised", extra={"service_count": len(SERVICES)})
 
 @app.route("/")
 def index():
-    return jsonify({"message": "Homelab Monitor is running", "version": "1.0"})
+    return jsonify({"message": "Homelab Monitor is running", "api_version": "1.0"})
 
 
 @app.route("/dashboard")
