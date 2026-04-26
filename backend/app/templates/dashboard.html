@@ -1,574 +1,655 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LabWatch — Auxcon Technologies</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg:        #080c10;
-    --bg2:       #0d1117;
-    --bg3:       #111820;
-    --border:    #1e2d3d;
-    --border2:   #243447;
-    --green:     #00ff88;
-    --green-dim: #00cc6a;
-    --green-bg:  rgba(0,255,136,0.06);
-    --red:       #ff3b3b;
-    --red-dim:   #cc2f2f;
-    --red-bg:    rgba(255,59,59,0.06);
-    --blue:      #3b82f6;
-    --blue-dim:  #2563eb;
-    --amber:     #f59e0b;
-    --text:      #c9d8e8;
-    --text-dim:  #5a7a9a;
-    --text-faint:#2a3d52;
-    --mono:      'Share Tech Mono', monospace;
-    --sans:      'Barlow', sans-serif;
-    --cond:      'Barlow Condensed', sans-serif;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LabWatch - Auxcon Technologies</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Design system tokens (mirrors constants/theme.ts) ── */
+    :root {
+      --bg:               #0A0C10;
+      --surface:          #141820;
+      --surface-raised:   #1C2330;
+      --accent:           #00D4FF;
+      --accent-dim:       rgba(0, 212, 255, 0.12);
+      --accent-glow:      rgba(0, 212, 255, 0.25);
+      --status-up:        #00C48C;
+      --status-up-dim:    rgba(0, 196, 140, 0.12);
+      --status-degraded:  #FFB020;
+      --status-down:      #FF4D4D;
+      --text-primary:     #F0F4F8;
+      --text-secondary:   #8892A4;
+      --text-tertiary:    #4A5568;
+      --border:           rgba(255, 255, 255, 0.06);
+      --border-strong:    rgba(255, 255, 255, 0.10);
+      --radius:           8px;
+      --radius-lg:        12px;
+    }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Syne', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
 
-  /* Scanline overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.08) 2px,
-      rgba(0,0,0,0.08) 4px
-    );
-    pointer-events: none;
-    z-index: 100;
-  }
+    /* ── Grid noise background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.015) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-  /* Top bar */
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 2rem;
-    height: 56px;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 50;
-  }
+    /* ── Top accent bar ── */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      z-index: 100;
+    }
 
-  .topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
-  }
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px 64px;
+    }
 
-  .logo-mark {
-    width: 28px;
-    height: 28px;
-    border: 2px solid var(--green);
-    display: grid;
-    place-items: center;
-    position: relative;
-  }
+    /* ────────────────────────────────────────
+       Header
+    ──────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0 32px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 40px;
+    }
 
-  .logo-mark::after {
-    content: '';
-    width: 10px;
-    height: 10px;
-    background: var(--green);
-    animation: pulse-dot 2s ease-in-out infinite;
-  }
+    .wordmark {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.7); }
-  }
+    .wordmark-icon {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--accent);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
 
-  .logo-text {
-    font-family: var(--cond);
-    font-size: 1.25rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: #fff;
-    text-transform: uppercase;
-  }
+    .wordmark-icon::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent-dim);
+    }
 
-  .logo-text span {
-    color: var(--green);
-  }
+    .wordmark-icon-inner {
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 2px;
+      position: relative;
+      z-index: 1;
+    }
 
-  .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-  }
+    .wordmark-text {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+    }
 
-  .tag {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.08em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
 
-  .tag.live {
-    color: var(--green);
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
+    .company-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
 
-  .tag.live::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--green);
-    animation: blink 1.4s step-end infinite;
-  }
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--status-up);
+    }
 
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--status-up);
+      animation: pulse 2s ease-in-out infinite;
+    }
 
-  /* Main layout */
-  .main {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 3rem;
-  }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.8); }
+    }
 
-  /* Header row */
-  .header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 2rem;
-    padding-bottom: 1.25rem;
-    border-bottom: 1px solid var(--border);
-  }
+    /* ────────────────────────────────────────
+       Summary strip
+    ──────────────────────────────────────── */
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 40px;
+    }
 
-  .header-title {
-    font-family: var(--cond);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-bottom: 0.4rem;
-  }
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
 
-  .header-time {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    color: var(--text-dim);
-  }
+    .summary-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--accent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
 
-  /* Summary strip */
-  .summary {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--border);
-    margin-bottom: 2rem;
-    border: 1px solid var(--border);
-  }
+    .summary-card:hover::before { opacity: 1; }
+    .summary-card:hover { border-color: var(--border-strong); }
 
-  .summary-cell {
-    background: var(--bg2);
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
+    .summary-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
 
-  .summary-label {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-  }
+    .summary-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
 
-  .summary-number {
-    font-family: var(--cond);
-    font-size: 2.5rem;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.01em;
-  }
+    .summary-value.total  { color: var(--accent); }
+    .summary-value.online { color: var(--status-up); }
+    .summary-value.offline { color: var(--status-down); }
 
-  .summary-number.total { color: var(--blue); }
-  .summary-number.up    { color: var(--green); }
-  .summary-number.down  { color: var(--red); }
+    /* ────────────────────────────────────────
+       Section header
+    ──────────────────────────────────────── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
 
-  /* Section header */
-  .section-label {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
 
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+    .last-updated {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-tertiary);
+      letter-spacing: 0.04em;
+    }
 
-  /* Service cards */
-  .services {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    margin-bottom: 2rem;
-  }
+    /* ────────────────────────────────────────
+       Service grid
+    ──────────────────────────────────────── */
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
 
-  .card {
-    background: var(--bg2);
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    position: relative;
-    overflow: hidden;
-    transition: background 0.15s;
-  }
+    .service-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      animation: card-in 0.4s ease both;
+    }
 
-  .card:hover { background: var(--bg3); }
+    .service-card:hover {
+      background: var(--surface-raised);
+      transform: translateY(-1px);
+    }
 
-  .card::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-  }
+    .service-card.up {
+      border-left-color: var(--status-up);
+    }
 
-  .card.up::before   { background: var(--green); }
-  .card.down::before { background: var(--red); }
+    .service-card.degraded {
+      border-left-color: var(--status-degraded);
+    }
 
-  .card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+    .service-card.down {
+      border-left-color: var(--status-down);
+    }
 
-  .card-name {
-    font-family: var(--cond);
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #fff;
-  }
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-  .status-badge {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    padding: 0.2rem 0.55rem;
-    border: 1px solid;
-  }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
 
-  .status-badge.up {
-    color: var(--green);
-    border-color: var(--green);
-    background: var(--green-bg);
-  }
+    .service-name {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text-primary);
+      text-transform: uppercase;
+    }
 
-  .status-badge.down {
-    color: var(--red);
-    border-color: var(--red);
-    background: var(--red-bg);
-  }
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
 
-  .card-meta {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem 1rem;
-  }
+    .status-badge.up {
+      background: var(--status-up-dim);
+      color: var(--status-up);
+    }
 
-  .meta-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-  }
+    .status-badge.degraded {
+      background: rgba(255, 176, 32, 0.12);
+      color: var(--status-degraded);
+    }
 
-  .meta-label {
-    font-family: var(--mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-  }
+    .status-badge.down {
+      background: rgba(255, 77, 77, 0.12);
+      color: var(--status-down);
+    }
 
-  .meta-value {
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    color: var(--text-dim);
-  }
+    .badge-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
 
-  .meta-value.highlight { color: var(--amber); }
+    .badge-dot.up { animation: pulse 2s ease-in-out infinite; }
 
-  /* Response bar */
-  .response-bar-wrap {
-    height: 2px;
-    background: var(--border);
-    overflow: hidden;
-  }
+    /* ── Metrics ── */
+    .metrics {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-  .response-bar {
-    height: 100%;
-    background: var(--green-dim);
-    transition: width 0.6s ease;
-  }
+    .metric-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-  .card.down .response-bar { background: var(--red-dim); width: 0 !important; }
+    .metric-key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+      letter-spacing: 0.06em;
+    }
 
-  /* Footer */
-  .footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-  }
+    .metric-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
 
-  .footer-text {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    color: var(--text-faint);
-    letter-spacing: 0.08em;
-  }
+    .metric-value.accent { color: var(--accent); }
 
-  .refresh-btn {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    background: transparent;
-    border: 1px solid var(--border2);
-    padding: 0.4rem 1rem;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
+    /* ── Response bar ── */
+    .response-bar-track {
+      margin-top: 16px;
+      height: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
 
-  .refresh-btn:hover {
-    color: var(--green);
-    border-color: var(--green);
-    background: var(--green-bg);
-  }
+    .response-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.6s ease;
+    }
 
-  /* Loading / error states */
-  .state-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 60vh;
-    gap: 1rem;
-    text-align: center;
-  }
+    .response-bar-fill.up        { background: var(--status-up); }
+    .response-bar-fill.degraded  { background: var(--status-degraded); }
+    .response-bar-fill.down      { background: var(--status-down); width: 100% !important; }
 
-  .state-label {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
+    /* ────────────────────────────────────────
+       Footer
+    ──────────────────────────────────────── */
+    footer {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-  .state-label.loading { color: var(--blue); }
-  .state-label.error   { color: var(--red); }
+    .footer-links {
+      display: flex;
+      gap: 16px;
+    }
 
-  .spinner {
-    width: 32px;
-    height: 32px;
-    border: 2px solid var(--border2);
-    border-top-color: var(--blue);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
+    .footer-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      transition: color 0.2s;
+    }
 
-  @keyframes spin { to { transform: rotate(360deg); } }
+    .footer-link:hover { color: var(--accent); }
 
-  /* Stagger-in animation */
-  .card {
-    opacity: 0;
-    transform: translateY(8px);
-    animation: card-in 0.3s ease forwards;
-  }
+    .refresh-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 9px 16px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
 
-  @keyframes card-in {
-    to { opacity: 1; transform: translateY(0); }
-  }
-</style>
+    .refresh-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .refresh-btn svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+    }
+
+    /* ────────────────────────────────────────
+       Loading / error states
+    ──────────────────────────────────────── */
+    .state-message {
+      text-align: center;
+      padding: 64px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text-tertiary);
+      letter-spacing: 0.08em;
+    }
+
+    .state-message.error { color: var(--status-down); }
+
+    /* ────────────────────────────────────────
+       Responsive
+    ──────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .summary-strip { grid-template-columns: 1fr; }
+      .service-grid  { grid-template-columns: 1fr; }
+      .header-right  { gap: 12px; }
+      .company-name  { display: none; }
+    }
+  </style>
 </head>
 <body>
+<div class="page">
 
-<nav class="topbar">
-  <div class="topbar-left">
-    <div class="logo-mark"></div>
-    <span class="logo-text">Lab<span>Watch</span></span>
-  </div>
-  <div class="topbar-right">
-    <span class="tag">Auxcon Technologies</span>
-    <span class="tag live" id="live-tag">Live</span>
-  </div>
-</nav>
+  <!-- ── Header ── -->
+  <header>
+    <div class="wordmark">
+      <div class="wordmark-icon">
+        <div class="wordmark-icon-inner"></div>
+      </div>
+      <span class="wordmark-text">LABWATCH</span>
+    </div>
+    <div class="header-right">
+      <span class="company-name">Auxcon Technologies</span>
+      <div class="live-badge" id="live-badge" style="visibility:hidden;">
+        <div class="live-dot"></div>
+        LIVE
+      </div>
+    </div>
+  </header>
 
-<main class="main">
-
-  <div class="header">
-    <div>
-      <div class="header-title">Network Status Dashboard</div>
-      <div class="header-time" id="last-updated">—</div>
+  <!-- ── Summary strip ── -->
+  <div class="summary-strip">
+    <div class="summary-card">
+      <div class="summary-label">Total Services</div>
+      <div class="summary-value total" id="stat-total">--</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Online</div>
+      <div class="summary-value online" id="stat-up">--</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Offline</div>
+      <div class="summary-value offline" id="stat-down">--</div>
     </div>
   </div>
 
-  <div id="app">
-    <div class="state-screen">
-      <div class="spinner"></div>
-      <span class="state-label loading">Polling services...</span>
+  <!-- ── Service list ── -->
+  <div class="section-header">
+    <span class="section-label">Service Status</span>
+    <span class="last-updated" id="last-updated"></span>
+  </div>
+
+  <div class="service-grid" id="service-grid">
+    <div class="state-message" id="loading-msg">Loading...</div>
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="footer-links">
+      <a class="footer-link" href="https://api.auxcon.dev/status">/status</a>
+      <a class="footer-link" href="https://auxcon.dev">auxcon.dev</a>
     </div>
-  </div>
+    <button class="refresh-btn" onclick="fetchStatus()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+      Refresh
+    </button>
+  </footer>
 
-  <div class="footer">
-    <span class="footer-text">auxcon.dev &nbsp;/&nbsp; api.auxcon.dev</span>
-    <button class="refresh-btn" onclick="fetchStatus()">Refresh</button>
-  </div>
-
-</main>
+</div>
 
 <script>
-  const API = '/status';
-  let maxResponseTime = 1000;
+  // ── Helpers ──────────────────────────────────────────────
+  const pad = n => String(n).padStart(2, '0');
 
-  function formatTime(d) {
-    return d.toLocaleTimeString('en-GB', { hour12: false }) + ' UTC+0';
+  function statusClass(s) {
+    if (!s) return 'down';
+    const v = s.toLowerCase();
+    if (v === 'up') return 'up';
+    if (v === 'degraded') return 'degraded';
+    return 'down';
   }
 
-  function typeLabel(type) {
-    return type === 'http' ? 'HTTP' : 'ICMP';
+  function statusLabel(s) {
+    if (!s) return 'DOWN';
+    const v = s.toLowerCase();
+    if (v === 'up') return 'ONLINE';
+    if (v === 'degraded') return 'DEGRADED';
+    return 'OFFLINE';
   }
 
-  function renderCard(svc, index) {
-    const isUp = svc.status === 'up';
-    const ms = svc.response_time_ms;
-    const barWidth = (ms && isUp)
-      ? Math.min(100, Math.round((ms / maxResponseTime) * 100))
-      : 0;
+  // Response time bar: 0ms -> 0%, 500ms -> 100%, capped
+  function barWidth(ms) {
+    if (ms == null || ms < 0) return 100;
+    return Math.min(100, Math.round((ms / 500) * 100));
+  }
 
-    return `
-      <div class="card ${isUp ? 'up' : 'down'}"
-           style="animation-delay: ${index * 0.05}s">
-        <div class="card-header">
-          <span class="card-name">${svc.name}</span>
-          <span class="status-badge ${isUp ? 'up' : 'down'}">
-            ${isUp ? 'ONLINE' : 'OFFLINE'}
-          </span>
-        </div>
-        <div class="card-meta">
-          <div class="meta-item">
-            <span class="meta-label">Type</span>
-            <span class="meta-value">${typeLabel(svc.type)}</span>
+  function formatTime() {
+    const now = new Date();
+    return `${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}:${pad(now.getUTCSeconds())} UTC`;
+  }
+
+  // ── Render ──────────────────────────────────────────────
+  function renderCards(services) {
+    const grid = document.getElementById('service-grid');
+    if (!services || services.length === 0) {
+      grid.innerHTML = '<div class="state-message">No services configured.</div>';
+      return;
+    }
+
+    grid.innerHTML = services.map((svc, i) => {
+      const cls   = statusClass(svc.status);
+      const label = statusLabel(svc.status);
+      const ms    = svc.response_time_ms;
+      const bw    = barWidth(ms);
+      const responseText = (ms != null && ms >= 0) ? `${ms} ms` : 'N/A';
+      const httpText = svc.status_code ? String(svc.status_code) : '--';
+      const delay = (i * 60) + 'ms';
+
+      return `
+        <div class="service-card ${cls}" style="animation-delay:${delay}">
+          <div class="card-header">
+            <span class="service-name">${escHtml(svc.name)}</span>
+            <div class="status-badge ${cls}">
+              <div class="badge-dot ${cls}"></div>
+              ${label}
+            </div>
           </div>
-          <div class="meta-item">
-            <span class="meta-label">Response</span>
-            <span class="meta-value ${ms && ms > 500 ? 'highlight' : ''}">
-              ${ms !== null ? ms + ' ms' : '—'}
-            </span>
+          <div class="metrics">
+            <div class="metric-row">
+              <span class="metric-key">type</span>
+              <span class="metric-value accent">${escHtml((svc.type || 'HTTP').toUpperCase())}</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-key">response</span>
+              <span class="metric-value">${responseText}</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-key">http_status</span>
+              <span class="metric-value">${httpText}</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-key">target</span>
+              <span class="metric-value" style="font-size:10px;color:var(--text-secondary);word-break:break-all;">${escHtml(svc.target || svc.url || '--')}</span>
+            </div>
           </div>
-          <div class="meta-item">
-            <span class="meta-label">HTTP Status</span>
-            <span class="meta-value">
-              ${svc.status_code !== null ? svc.status_code : '—'}
-            </span>
+          <div class="response-bar-track">
+            <div class="response-bar-fill ${cls}" style="width:${bw}%"></div>
           </div>
-        </div>
-        <div class="response-bar-wrap">
-          <div class="response-bar" style="width: ${barWidth}%"></div>
-        </div>
-      </div>`;
+        </div>`;
+    }).join('');
   }
 
-  function render(data) {
-    const times = data.results
-      .map(s => s.response_time_ms)
-      .filter(Boolean);
-    if (times.length) maxResponseTime = Math.max(...times, 500);
-
-    const app = document.getElementById('app');
-    app.innerHTML = `
-      <div class="summary">
-        <div class="summary-cell">
-          <span class="summary-label">Total Services</span>
-          <span class="summary-number total">${String(data.total).padStart(2,'0')}</span>
-        </div>
-        <div class="summary-cell">
-          <span class="summary-label">Online</span>
-          <span class="summary-number up">${String(data.up).padStart(2,'0')}</span>
-        </div>
-        <div class="summary-cell">
-          <span class="summary-label">Offline</span>
-          <span class="summary-number down">${String(data.down).padStart(2,'0')}</span>
-        </div>
-      </div>
-      <div class="section-label">Service Status</div>
-      <div class="services">
-        ${data.results.map((s, i) => renderCard(s, i)).join('')}
-      </div>`;
-
-    document.getElementById('last-updated').textContent =
-      'Last updated: ' + formatTime(new Date());
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
-  function renderError(msg) {
-    document.getElementById('app').innerHTML = `
-      <div class="state-screen">
-        <span class="state-label error">Connection Failed</span>
-        <span class="tag">${msg}</span>
-      </div>`;
-  }
-
+  // ── Fetch ───────────────────────────────────────────────
   async function fetchStatus() {
+    const grid = document.getElementById('service-grid');
+
     try {
-      const res = await fetch(API);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      render(await res.json());
-    } catch (e) {
-      renderError(e.message);
+      const res  = await fetch('/status');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      const services = data.results ?? data.services ?? [];
+      const up       = data.up   ?? services.filter(s => s.status === 'up').length;
+      const down     = data.down ?? services.filter(s => s.status !== 'up').length;
+      const total    = data.total ?? services.length;
+
+      document.getElementById('stat-total').textContent = pad(total);
+      document.getElementById('stat-up').textContent    = pad(up);
+      document.getElementById('stat-down').textContent  = pad(down);
+      document.getElementById('last-updated').textContent = `Updated ${formatTime()}`;
+      document.getElementById('live-badge').style.visibility = 'visible';
+
+      renderCards(services);
+    } catch (err) {
+      grid.innerHTML = `<div class="state-message error">Failed to fetch status: ${escHtml(err.message)}</div>`;
     }
   }
 
+  // ── Init ────────────────────────────────────────────────
   fetchStatus();
-  setInterval(fetchStatus, 30000);
+  setInterval(fetchStatus, 30000);   // Poll every 30s -- matches app polling interval
 </script>
 </body>
 </html>
