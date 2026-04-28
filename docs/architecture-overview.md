@@ -21,10 +21,10 @@ The lab is structured to simulate an enterprise-style environment.
 
 The network is divided using VLANs:
 
-- VLAN 10 – Management Network  
+- VLAN 10 – Management Network
   Used for administration and control
 
-- VLAN 20 – Lab Network  
+- VLAN 20 – Lab Network
   Used for virtual machines and services
 
 ---
@@ -34,13 +34,13 @@ The network is divided using VLANs:
 The lab server hosts multiple virtual machines connected through a virtual switch.
 
 ### VM Roles
-- Web Server VM  
+- Web Server VM
   Hosts HTTP services
 
-- Client VM  
+- Client VM
   Simulates user traffic
 
-- Monitoring Backend VM  
+- Monitoring Backend VM
   Runs monitoring logic and API
 
 ---
