@@ -32,16 +32,14 @@ Only version tags trigger a production image push.
 
 ## Release Workflow
 
-1. Work on feature branch, merge PR to main
-2. Verify the change looks right: git log --oneline -3
-3. Tag the release: git tag v0.5.0 && git push origin v0.5.0
-4. Watch GitHub Actions complete at github.com/natekelly-tech/homelab-monitoring-project/actions
-5. Pull and deploy on EC2:
-   - ssh -i C:\Users\kh4r0\.ssh\id_ed25519 ubuntu@54.67.70.105
-   - cd /home/ubuntu/lab
-   - docker compose pull
-   - docker compose down && docker compose up -d
-6. Verify: curl https://api.auxcon.dev/status
+1. Create a feature branch, make changes, commit.
+2. Push the branch, open a PR on GitHub, and merge to `main`. (Branch protection is active: direct pushes are rejected).
+3. **CRITICAL:** On EC2, sync first: `git pull --rebase origin main` (The EC2 local main falls behind Windows PRs).
+4. Verify tags: Use `git tag` and check GitHub to ensure your target version does not already exist.
+5. Tag the release: `git tag v0.X.X && git push origin v0.X.X`
+6. Watch GitHub Actions complete at github.com/natekelly-tech/homelab-monitoring-project/actions. (Workflow fires on version tags ONLY, not on push to main).
+7. On EC2: `sudo kubectl rollout restart deployment/labwatch-api`
+8. Verify: `curl https://api.auxcon.dev/status`
 
 ## Rollback
 
