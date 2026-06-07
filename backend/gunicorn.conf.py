@@ -4,12 +4,13 @@
 # correctly for graceful container shutdown.
 
 import os
+import sys
 
+# Server Socket
 bind = "0.0.0.0:8080"
 
-# Formula: (2 × CPU cores) + 1. VM has 1–2 vCPUs, so 3 is correct.
 # Scale-out at load happens via Kubernetes HPA across pods, not more workers here.
-workers = int(os.environ.get("GUNICORN_WORKERS", "3"))
+workers = int(os.environ.get("GUNICORN_WORKERS", "2"))
 
 worker_class = "sync"
 
@@ -22,7 +23,38 @@ accesslog = "-"
 errorlog = "-"
 loglevel = os.environ.get("LOG_LEVEL", "info").lower()
 
-# Structured access log — one JSON object per request, aggregator-ready.
-access_log_format = '{"remote_ip":"%(h)s","method":"%(m)s","path":"%(U)s","status":%(s)s,"duration_us":%(D)s,"bytes":%(b)s}'
-
 proc_name = "labwatch-api"
+
+# JSON Log Configuration
+# Replaces the fragile access_log_format string with a robust dictionary router.
+# This forces Gunicorn to pass its access and error logs through the same
+# python-json-logger formatter your application code uses, ensuring safe serialization.
+logconfig_dict = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "json_access": {
+            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "format": "%(asctime)s %(levelname)s %(message)s"
+        }
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "json_access",
+            "stream": sys.stdout
+        }
+    },
+    "loggers": {
+        "gunicorn.access": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False
+        },
+        "gunicorn.error": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False
+        }
+    }
+}
