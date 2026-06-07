@@ -4,6 +4,42 @@ All notable changes to this project are documented here.
 
 ---
 
+## [0.4.4] — 2026-05-24
+
+### Added
+- Automated daily k3s `state.db` backup to Google Drive via rclone cron job
+- Automated weekly credential file backup to Google Drive
+
+### Security
+- Pinned `urllib3` to `2.7.0` to resolve CVE-2026-44431 and CVE-2026-44432
+
+---
+
+## [0.4.2] — 2026-04-26
+
+### Changed
+- Added `api_version: "1.0"` field to `GET /` endpoint response to strictly align with API.md specification
+
+---
+
+## [0.4.1] — 2026-04-25
+
+### Changed
+- Updated LabWatch API self-monitoring target in `config.py` from `localhost:8080` to public `https://api.auxcon.dev`
+
+---
+
+## [0.4.0] — 2026-04-26
+
+### Added
+- Phase 7 Complete: Migrated orchestration to Kubernetes (k3s single-node cluster)
+
+### Changed
+- Rerouted Cloudflare Tunnel to target k3s NodePort `31012` instead of Docker port `8080`
+- Docker Compose stopped and retained in `/home/ubuntu/lab/` as an emergency fallback only
+
+---
+
 ## [0.3.0] — 2026-04-20
 
 ### Added

@@ -18,12 +18,11 @@ The API runs 24/7 on AWS EC2 (us-west-1) behind a Cloudflare Tunnel. No home net
 
 ## Architecture
 
-```
-Internet → Cloudflare (TLS) → Cloudflare Tunnel → EC2 (AWS us-west-1)
-                                                        └── Docker (Gunicorn + Flask)
-```
+    Internet → Cloudflare (TLS) → Cloudflare Tunnel → EC2 (AWS us-west-1)
+                                                            └── k3s (NodePort 31012)
+                                                                  └── Pod (Gunicorn + Flask)
 
-The application runs as a non-root Docker container managed by Docker Compose. Cloudflare Tunnel handles all inbound TLS termination — no ports are directly exposed to the internet except 22 (SSH), 80, and 443, enforced by UFW and AWS Security Groups.
+The application runs as a non-root Docker container managed by a single-node k3s cluster. Docker Compose is stopped but retained as a cold-standby fallback. Cloudflare Tunnel handles all inbound TLS termination — no ports are directly exposed to the internet except 22 (SSH), 80, and 443, enforced by UFW and AWS Security Groups.
 
 ---
 
@@ -81,15 +80,15 @@ SECURITY.md
 
 | Component | Details |
 |---|---|
-| Cloud provider | AWS EC2 us-west-1 |
+| Cloud provider | AWS EC2 us-west-1 (t2.small) |
 | OS | Ubuntu 24.04 LTS |
-| Container runtime | Docker 29.4.1 |
-| WSGI server | Gunicorn 23.0.0 — 3 workers |
+| Orchestration | k3s v1.34.6+k3s1 |
+| Datastore | SQLite via Kine (etcd disabled) |
+| WSGI server | Gunicorn 23.0.0 — 2 workers |
 | Base image | python:3.12-slim |
 | Container user | appuser uid 1001 (non-root) |
-| Tunnel | cloudflared v2026.3.0 (systemd service) |
-| Firewall | UFW + AWS Security Groups |
-| Intrusion prevention | fail2ban (SSH, 5 retries / 1h ban) |
+| Tunnel | cloudflared v2026.5.0 (systemd service) |
+| Firewall | UFW + fail2ban (SSH, 5 retries / 1h ban) |
 | Auto-updates | unattended-upgrades (enabled) |
 
 ---
@@ -140,4 +139,6 @@ React Native / Expo app connecting to `https://api.auxcon.dev`. APK built and fu
 | 6 | Containerisation (Docker + DockerHub) | Complete |
 | 6.5 | Cloud Migration to AWS EC2 | Complete |
 | 6.6 | Server Hardening (UFW, fail2ban, unattended-upgrades) | Complete |
-| 7 | Kubernetes Orchestration | Next |
+| 7 | Kubernetes Orchestration | Complete |
+| 8 | Backup automation (Google Drive / rclone) | Complete |
+| 8 | Gunicorn JSON access logs & /history | Planned |

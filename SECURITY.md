@@ -90,6 +90,21 @@ Full scan results: `security-reports/trivy-2026-04-19-post-fix.txt`
 | MEDIUM — upstream blocked | 26 | glibc, util-linux, xz, zlib, tar, systemd — no fix available |
 | Secrets found | 0 | Clean |
 
+## Trivy Vulnerability Scan (Updated 2026-05-24)
+
+### Container Scan (auxcon/labwatch-api:v0.4.4)
+- **CRITICAL:** 0
+- **HIGH:** 6 (ncurses, libcap2, systemd) — No fix available upstream in the base image. Negligible risk in a headless container environment.
+- **Python Dependencies:** 0 — `urllib3` pinned to `2.7.0` to resolve CVE-2026-44431 and CVE-2026-44432.
+
+### Host / Kubernetes Scan
+- **CVE-2026-33186 (HIGH):** Identified in k3s internal `gRPC-Go` binaries (v1.79.1).
+  - *Risk Assessment:* ACCEPTED. The internal gRPC interface is not reachable from external traffic due to the Cloudflare Tunnel architecture. Patch will be applied automatically when k3s releases the upstream fix (v1.79.3).
+
+## Known Security & Infrastructure Constraints
+
+**IAM Backup Limitations:** AWS console access via ITACS has not been provisioned. The assigned IAM role blocks `ec2:CreateImage` and `ec2:DescribeImages` (UnauthorizedOperation). As a result, no verified AMI or EBS snapshot exists for the host. The backup strategy relies entirely on off-site application state exports (SQLite `state.db`) to Google Drive via `rclone`. This constraint is formally accepted in SSP v1.3.
+
 ### Upstream-Blocked CVE Risk Assessment
 
 **systemd (2 HIGH)** — libsystemd0 is a library on disk only. systemd is not running as PID 1 in the container. The CVEs require systemd to be executing to be exploitable. Risk: negligible.
